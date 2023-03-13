@@ -1,61 +1,61 @@
 import java.util.*;
 import java.io.*;
- 
-// https://www.acmicpc.net/problem/9466
- 
-class Main {
-    static int stoi(String s) { return Integer.parseInt(s);}
- 
-    static int n;
-    static int[] arr;
-    static int count = 0;
-    static boolean[] visited;
-    static boolean[] finished;
- 
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st;
- 
-        int tc = stoi(br.readLine());
- 
-        for(int t=0; t<tc; t++) {
-            n = stoi(br.readLine());
-            arr = new int[n+1];
-            visited = new boolean[n+1];
-            finished = new boolean[n+1];
-            count = 0;
- 
-            st = new StringTokenizer(br.readLine());
-            for(int i=1; i<n+1; i++) 
-                arr[i] = stoi(st.nextToken());
- 
-            for(int i=1; i<n+1; i++)
-                dfs(i);
- 
-            System.out.println(n - count);
-        }
-    }
- 
-    static void dfs(int now) { 
-        if(visited[now])
-            return;
- 
-        visited[now] = true;
-        int next = arr[now];
- 
-        if(visited[next] != true)
-            dfs(next);
-        else {
-            if(finished[next] != true) {
-                // 노드가 끝나려면 싸이클을 무조건 거쳐야한다.
-                // 따라서 현재 노드가 아닌 다음 노드 기준으로 하면 싸이클이 무조건 존재
-                count++;
-                for(int i=next; i != now; i = arr[i])
-                    count++;
+
+public class Main {
+
+    private static final BufferedReader br =
+            new BufferedReader(new InputStreamReader(System.in));
+
+    private static final BufferedWriter bw =
+            new BufferedWriter(new OutputStreamWriter(System.out));
+
+    private static final int CYCLE = -1;
+    private static final int NOT_VISITED = 0;
+
+    public static void main(String[] args) throws Exception{
+        int t = Integer.parseInt(br.readLine());
+
+        for (int i = 0; i < t; i++) {
+            int n = Integer.parseInt(br.readLine());
+            int[] arr = new int[n+1];
+            int[] state = new int[n+1];
+
+            StringTokenizer st = new StringTokenizer(br.readLine());
+            for (int j = 1; j <= n; j++) {
+                arr[j] = Integer.parseInt(st.nextToken());
             }
+
+            for (int j = 1; j <= n; j++) {
+                if (state[j] == NOT_VISITED) bfs(j, arr, state);
+            }
+
+            int cnt = 0;
+            for (int j = 1; j <= n; j++) {
+                if (state[j] != CYCLE) cnt++;
+            }
+            bw.write(cnt + "\n");
         }
- 
-        // 모든 작업이 끝나서 더이상 사용하지 않음
-        finished[now] = true;
+        bw.flush();
+    }
+
+    public static void bfs(int start, int[] arr, int[] state) {
+        int cur = start;
+
+        while (true) {
+            state[cur] = start;
+            cur = arr[cur];
+
+            // 싸이클인 경우
+            if (state[cur] == start) {
+                while (state[cur] != CYCLE) {
+                    state[cur] = CYCLE;
+                    cur = arr[cur];
+                }
+                return;
+            }
+
+            // 싸이클이 아닌데 방문한 경우
+            if (state[cur] != NOT_VISITED) return;
+        }
     }
 }
